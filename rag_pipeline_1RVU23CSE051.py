@@ -11,6 +11,7 @@ from langchain_classic.chains.retrieval_qa.base import RetrievalQA
 from langchain_core.documents import Document
 
 load_dotenv()
+groq_key = os.getenv("GROQ_API_KEY")
 
 def build_rag(file_path):
 
