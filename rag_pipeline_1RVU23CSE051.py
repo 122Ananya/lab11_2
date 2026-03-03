@@ -1,53 +1,24 @@
 import os
-import pandas as pd
 from dotenv import load_dotenv
-
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_groq import ChatGroq
 from langchain_classic.chains.retrieval_qa.base import RetrievalQA
-from langchain_core.documents import Document
 
 load_dotenv()
-groq_key = os.getenv("GROQ_API_KEY")
 
-def build_rag(file_path):
+def build_rag(pdf_path):
+    loader = PyPDFLoader(pdf_path)
+    documents = loader.load()
 
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=500,
         chunk_overlap=50
     )
+    chunks = splitter.split_documents(documents)
 
-# PDF
-    if file_path.endswith(".pdf"):
-        loader = PyPDFLoader(file_path)
-        documents = loader.load()
-        chunks = splitter.split_documents(documents)
-
-#CSV
-    elif file_path.endswith(".csv"):
-        df = pd.read_csv(file_path)
-
-        documents = []
-        for _, row in df.iterrows():
-            text = f"""
-            Passenger {row['PassengerId']}:
-            Name: {row['Name']}
-            Age: {row['Age']}
-            Sex: {row['Sex']}
-            Class: {row['Pclass']}
-            Survived: {row['Survived']}
-            """
-            documents.append(Document(page_content=text))
-
-        chunks = splitter.split_documents(documents)
-
-    else:
-        raise ValueError("Unsupported file type")
-
-    # Embeddings
     embeddings = HuggingFaceEmbeddings(
         model_name="sentence-transformers/all-MiniLM-L6-v2"
     )
@@ -60,7 +31,6 @@ def build_rag(file_path):
 
     retriever = vectordb.as_retriever(search_kwargs={"k": 3})
 
-    # Groq LLM
     llm = ChatGroq(
         model="openai/gpt-oss-120b",
         temperature=0.2
