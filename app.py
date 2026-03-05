@@ -3,7 +3,6 @@ from rag_pipeline_1RVU23CSE051 import build_rag
 
 # st.set_page_config(page_title="Chat with PDF", layout="centered")
 
-
 st.title("Ask information from the PDF(Ananya_051 - Lab 11.2)")
 
 pdf_file = st.selectbox(

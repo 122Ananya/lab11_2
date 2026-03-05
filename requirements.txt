@@ -9,3 +9,8 @@ sentence-transformers
 pypdf
 pandas
 python-dotenv
+requests
+yfinance
+groq
+networkx>=3.3
+pyvis>=0.3.2
